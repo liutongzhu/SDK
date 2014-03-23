@@ -1,0 +1,1203 @@
+1.编写OC程序入门
+1.1.语言简介（20140228）
+Objective-C主要写界面
+所有的关键字都以@开头，连字符串都以@开头
+基本数据类型BOOL （YES/NO）1/0
+nil 相对于c语言NULL，都是0
+屏幕输出：NSLog(@"hello");NSLog(@"age is %i",27);
+源代码文件扩充名.m
+
+1.2.简单程序（兼容c代码）
+第一个OC程序.m
+#include <stdio.h>
+int main()
+{
+	println("hello");
+	NSLog("hay~");
+	return 0;
+}
+
+$ touch 第二个OC程序.m
+// import作用跟#include一致，防止头文件包内容被包含多次
+// OC基于Foundation框架
+#import <Foundation/NSObjCRuntime.h> 
+int main()
+{
+	NSLog(@"hay~");// 包含自动换行，文件名和时间
+	return 0;	
+}
+// 编译链接
+$  cc 第二个OC程序.0 -framework Foundation
+
+// 包含所有Foundation下所有头文件,只要导入主头文件
+#import <Foundation/Foundation.h>
+
+1.3.编写步骤
+编写OC程序：.m源文件
+编译.m文件为.o目标文件：cc -c xxx.m
+链接.o文件为a.out可执行文件：cc xxx.o -framework Foundation
+执行a.out文件：./a.out
+
+1.4.第三个OC程序
+touch 第三个OC程序.m
+open 第三个OC程序.m
+touch 李四.m
+open 李四.m
+touch 李四.h
+open 李四.h
+第三个OC程序.m内容：
+import "李四.h"
+int main()
+{
+	test();
+	return;
+}
+李四.m内容：
+#import <Foundation/Foundation.h>
+void test()
+{
+	NSLog(@"test..");
+}
+李四.h内容：
+void test();
+// 编译
+$ cc -c 第三个OC程序.m // 生成第三个OC程序.o
+$ cc -o 第三个OC程序.o // 连接报错了，main函数里面的test函数没有定义
+$ cc -c 李四.m // 生成李四.o
+$ cc -o 第三个OC程序.o 李四.o -framework Foundation
+$ ./a.out
+
+1.5.oc与c语言交叉编译
+创建第四个oc程序.m、张四.c 张四.h
+第四个oc程序.m内容：
+# import "张四.h"
+int mian()
+{
+	test();
+	return 0;
+}
+
+张四.c内容：
+#include <stdio.h>
+void test()
+{
+	printf("haha");
+}
+
+张四.h内容：
+void test();
+
+编译链接：
+$ cc -c 第四个oc程序.m
+$ cc -c 张四.c
+$ cc 第四个oc程序.o 张四.o
+$ ./a.out
+
+2.ios文档说明
+解压IOS6文档.zip（oc和ios知识都在）
+右击-包内容-Resources-Document-index.html 离线内容
+
+集成到xcode里面操作：
+前往-硬盘-用户-apple-资源库-Developer-Shared-Documentation-DocSets
+把IOS6文档.zip拖进去
+重启xCode-Help-看到文档
+
+下载文档
+xcod  e-refefence-download
+
+3.面向对象简单语法介绍
+3.1.面向对象思想介绍（略过...）
+3.2.定义OC中的类
+import <Foundation/Foundation.h>
+//  定义车类
+// @implementation 和 @end
+// : NSObject 让Car这个类具备创建对象能力
+@implementation Car:NSObject
+// 这个大括号里面写所有的属性
+{
+	//@public 让对象属性可以被外部指针使用,只写一个，其他属性都被外访问
+	@public
+	int wheels; // 轮子个数
+	double speen; // 时速
+	
+}
+//  定义行为在@end前面，大括号外面写行为
+//  给对象增加一个行为，必须以减号-开头
+// oc方法的小括号()只是主要扩住类型
+- (void) run
+{
+		NSLog(@"车子跑起来了！");
+}
+@end
+
+int main()
+{
+	// 在oc中想执行一些行为，首先写个[行为执行者 行为名称 ]
+	// 利用Car这个类，执行创建车子
+	// new 这个行为执行完毕，会返回这个对象的地址
+	// 指针变量c指向的是最新创建的车子对象
+	Car  *c = [Car new];
+	// 给c指向的车子对象的wheels属性赋值
+	c->wheel = 4;
+	c->speed = 300;
+	
+	NSLog(@"车子有%i个轮子，时速%f km/h",c->wheels,c->speed);
+	// 给指针变量c指向的对象发送一条run消息，让这个对象执行run这个行为
+	[c run];
+}
+
+$ cc -c xxx.m
+$ cc xxx.o -framework Foundation
+
+4.对象与函数混用
+定义Car对象略过
+void test(Car *c){
+	c->speen = 1000;
+}
+
+int main()
+{
+	Car *c = [Car new];
+	test(c);
+}
+
+5.oc的类声明和实现(有声明有实现)
+有声明但没有实现，在运行出错
+没有声明但有实现，编译警告，但运行ok
+import <Foundation/Foundation.h>
+
+// 声明一个类
+@interface Book : NSObject
+{
+	double price;
+}
+// 声明一个方法（行为）
+-(void)read;	
+@end
+
+int main()
+{
+	Book *book = [Book new];
+	book->price = 10;
+	[book read];	
+}
+
+// 定义一个类，只用来实现@implementation Book
+@implementation Book
+-(void) read()
+{
+	NSLog(@"%f price 开始读...",price);
+}
+@end
+
+6.多参数方法声明 20140303w
+@interface Caculator : NSObject
+-(double)pi;
+// 一个参数对应一个冒号
+// 冒号也是方法名的一部分
+-(double)pingfang:(double)number;
+-(double)sumOfnum1:(double)num1 andNum2:(double)num2;
+int main()
+{
+	Caculator *ca =[Caculator new];
+	double d= [ca pingfang:4];
+	double c = [ca sumOfnum1:10 andNum2:5];
+	NSLog(@"4的平方=%f",d);
+	NSLog(@"%f+%f=%f",10,5,c);
+	return 0;
+}
+
+@implementation Caculator
+-(double) pi
+{
+	return 3.14;
+}
+-(double) pingfang:(double)number
+{
+	return number*number;	
+}
+-(double) sum:(double)a :(double)b
+{
+	return a+b;
+}
+@end
+
+7.方法和函数的区别
+main外的函数随便写在哪，甚至在类里面定义函数，该函数属于文件
+函数跟类一点关系都没有
+
+8.匿名对象
+int mai()
+{
+	Car *car = [Car new];
+	[car fly];
+	
+	// 匿名对象（内存泄漏）
+	[[Car new] fly];
+	[Car new]->speed = 100;
+}
+
+9.Set方法与Get方法 20130304
+import <Foundation/Foundation.h>
+@interface Car : NSObject
+{
+	// 注释掉@public,采用get和set方法来操作	
+	int wheels;
+}
+- (void) run;
+- (void) setWheels:(int)newWheels;
+- (int) getWheels;
+@end
+
+@implementation Car
+// 设置一个set方法,用来设置成员变量，可以在方法里面过滤掉一些不合理的值
+// 命名规范：方法都是set开头，而且后面跟成员变量名，成员变量字母必须大写,形参名称不要跟成员变量同名
+- (void) setWheels:(int)newWheels
+{
+	if(newWheels<=0
+	{
+		newWheels = 1;
+	}
+	wheels = newWheels;	
+}
+// 一般get方法就是属性名
+- (int) wheels
+{
+	return wheels;
+}
+- (void) run
+{
+	NSLog(@"%i个轮子的车子跑起来"),whells);
+}
+@end
+int main()
+{
+	Car *car = [Car new];
+	car->wheels = 0; // 属性暴露，随便改
+	
+
+	// 调用set方法
+	[car setWheels:0];
+
+	[car run];	
+	return 0;
+}
+
+10.self关键字
+只能在方法（对象方法、类方法，在java中this不能在类方法中出现,方法是静态方法）
+每次调用方法时候，系统自动创建self指针
+self指针指向方法调用者
+
+@interface Dog : NSObject
+{
+	int _speed;
+}
+-(void) setSpeed:(int)speed;
+-(int) speed;
+-(void) bark;
+-(void) run;
++(double) sumOfNum1:(double)num1 andNum2:(double)num2;
+@end
+
+@implementation Dog
+-(void) setSpeed:(int)speed
+{
+	self->_speed = speed;
+}
+-(int)speed
+{
+	return _speed;
+}
+-(void)run
+{
+	// 给self指向的对象发送一条消息
+	[self bark];	
+}
+// 对象的方法
+-(void)bark
+{
+	...
+}
++(double) sumOfNum1:(double)num1 andNum2:(double)num2
+{
+	return num1+num2;	
+}
+// 类的方法
++(double) averageOfNum1:(double)num1 andNum2:(double)num2
+{
+	return [self sumOfNum1:num1 andNum2:num2]/2
+}
+@end
+
+int main()
+{
+	double d= [Dog sumOfNum1:10 andNum2:5];
+	NSLog(@"d is %f",d);
+	return 0;
+}
+
+11.self陷阱
+@interface TestClass : NSObject
+- (void) objMethod;
++ (void) classMethod;
+@end
+
+@implementation TestCass
+- (void) objMethod
+{
+	...	
+}
++ (void) classMethod
+{
+	// 编译器会将objMethod当作是类方法处理
+	[self objMethod];
+}
+@end
+int main()
+{
+	// 编译器在编译和link就会出错
+	[TestClass classMethod];
+	return 0;
+}
+
+12.继承语法
+申明动物类
+@interface Animal : NSObject
+{
+	int _weight;
+}
+-(void)setWeight:(int)weight;
+-(int)weight;
+-(void)eat;
+@end
+定义动物类
+@implementation Animal
+-(void) setWeight:(int)weight
+{
+	_weight = weight;
+}
+-(int)weight
+{
+	return _weight;
+}
+-(void)eat
+{
+	NSLog(@"吃体重：%d",_weight);
+}
+@end 
+
+@interface Bird : Animal
+@end
+@implementation Bird
+@end
+
+@interface Dog : NSObject
+@end
+@implementation Dog
+@end
+
+int main()
+{
+	Dog *dog = [Dog new];
+	[dog setWeight:100];
+	[dog eat];
+	return 0;
+}
+
+20140305 10-13:10
+20140306 14:06
+重载：子类声明的成员不能跟父类成员变量重名【跟java有差异】，方法可以（子类重写父类方法）
+
+12.super关键字
+调用父类中实现的方法
+调用的是对象方法还是类方法，取决于super所在的环境
+如果子类需要在父类的方法基础上进行重写，应该用super
+
+13.成员变量作用域
+NSObject-NS是乔布斯性格很极端被苹果赶走，自己创建一家NestStep公司
+@public 说明后面的所有成员变量都是公共的。
+@protected 受保护的，子类和当前类@implemetation和@end
+@private 在子类不能访问的，只能被当前类使用
+@package 在某个“体系”里面直接访问（在某个框架里面可以直接访问）
+如果在@inteface中申明的成员变量没有明确，是@protected
+如果在@implementation中声明的成员没有明确，是@private
+
+14.多态
+跟java差不多，怎么判断一个对象是什么类型的吗？
+
+15.字符串与NSString、日志输出
+int main()
+{
+	// 创建字符串
+	NSString *name = @“liutz”;
+	// oc字符串输出用%@这个格式符
+	NSLog(@"我的名字叫%@",name);
+	
+	int age = 20;
+	// 产生一个新的字符串
+	NSString *str = [NSString stringWithFormat:@"my age is %i",age];
+	
+	// 输出中文文件名字,NSLog输出有问题，只能是英文
+	NSLog(@"文件内容%s",__FILE__);
+	// 用c语言来做,什么文件多少行
+	printf("输出了---%s--%i\n",__FILE__,__LINE__);
+	return 0;
+}
+
+16.description关键字 ﻿20140308:23
+#import <Foundation/Foundation.h>
+@interface Person :NSObject
+{
+	int _age;
+}
+-(void)setAge:(int)age;
+-(int)age;
+@end
+
+@implementation Person
+-(void) setAge:(int)age
+{
+	_age=age;
+}
+-(int)age
+{
+	return _age;
+}
+
+-(NSString *) description
+{
+	return [NSString stringWithFormat:@"age:%i",_age];
+}
+@end
+
+int main()
+{
+	Person *p = [Person new];
+	[p setAge:29];
+	// 输出手游的oc对象都用%@
+	// 类名+对象的内存地址
+	// 为啥？给指针p发送一条消息(description方法)
+	// 跟java的toString方法一样
+	NSLog(@"Person对象:%@",p);
+}
+
+17.构造方法
+[Person new];
+new方法内部做了什么事情
+分配内存给对象+alloc返回对象
+初始化对象 -init
+Person *p = [[Person alloc] init];
+
+//返回id类型是万能指针，不要再加上*
+//id类型能指向任何oc对象
+//构造方法是用来初始化对象
+-(id)init
+{
+	// 为了父类中的成员变量也能初始化
+	if(self=[super init])
+	{
+		_age = 20;
+	}
+	return self;
+}
+// 自定义构造器
+-(id)initWithAge:(int)age
+{
+	if(self = [super int])
+	{
+		_age = age;
+	}
+	return self;
+}
+
+18.点语法(set get方法，取决于是set还是get)
+Person *p = [[Person alloc] init];
+// 设置年龄
+[p setAge:19];
+// 采用点语法来设置年龄,并不是访问成员变量
+// 编译器自动生成上面语句
+p.age = 19;
+int newAge = p.age;//等价int newAge = [p age];
+
+19.property和synthesize关键字
+/*
+property在@interface里面来声明get和set方法
+*/
+@interface Person :NSObject
+{
+	int _age;
+}
+-(void) setAge:(int)age;
+-(int)age;
+
+// @property会自动生成get方法和set方法的声明
+@property int age;
+@end
+
+@implementation Person
+//自动生成get和setter实现
+//在实现中访问_age这个成员变量
+@synthesize age = _age;
+// 如果没有明确指定成员变量名，默认指定age成员，如果没有就生成一个私有成员变量
+@synthesize age;
+@end
+
+最简写法xcode4.4
+@interface Dog : NSObject
+@property int speed;
+@end
+
+@implementation Dog
+-(void)description
+{
+	return [NSString stringWithFormat: @"_spped=%d",_speed];
+}
+@end
+
+int main()
+{
+	Dog *g = [[Dog alloc] init];
+	g.speed = 250;
+	return 0;
+}
+
+20.xcode简单使用
+在xcode左侧点击设置断点-点run
+继续往下执行-在all output上面的按钮
+
+
+#pragma mark - 这个一组方法
+
+21.内存管理
+范围：继承了NSObject的对象，对基础数据类型无效
+原理：
+1.每个对象内部都保存了一个与之相关联的整数，称为引用计数器
+2.当使用alloc new或者copy创建一个对象时，对象的引用计数器被设置为1
+3.给对象发送一条retain消息，可以使引用计数器值+1
+4.给对象发送一条release消息，可以使引用计数器值-1
+5.当一个对象的引用计数器值为0时，那么它被销毁，其占用的内存被系统回收，oc也会自动向对象发送一条dealloc消息。
+一般会重写dealloc方法，在这里释放相关资源，一定不要直接调用dealloc方法（记得调用父类方法）
+6.可以给对象发送retainCount消息获得当前的引用计数器值
+Dog *d = [[Dog alloc] init];
+[dog release];//dog变成了野指针（指向了不可用的内存）
+dog = nil; // dog变成了空指针消息，什么事情也不发生（不像java发生异常问题）
+
+22.内存回收原则：
+22.1.成员（对象）变量的内存管理：
+1.set方法的管理，当当前成员对象跟新的对象不一样时，release旧的成员变量，retain新的成员变量
+2.delloc方法的管理，release成员变量
+一个对象内部成员是对象的话，需要管理成员对象内存释放问题
+假如：Person{Dog}
+// 人设置狗的时候，需要按照下面方式处理
+-(void)setDog:(Dog*)dog
+{
+	if(dog != _dog)
+	{
+		[_dog realse];
+		_dog = [dog retain];
+	}
+	
+}
+// 人释放了，狗对象需要释放
+-(void)dealloc
+{
+	[_dog release];
+}
+
+以上代码是关于成员（对象）变量内存管理模板，xcode可以将上面模板统一按照其他方法处理！
+
+内存在iphone和ipad有限制，需要管理
+
+*谁创建谁释放。如果你通过alloc、new或（mutable）copy来创建一个对象，
+ 那么你必须调用release或autorelease。换句话说，不是你创建的，就不用你去释放
+*一般来说，除了alloc new或copy之外创建的对象都被申明了autorelease
+*谁retain,谁release,只要你调用了retain,无论这个对象是如何生成的，你都要调用release
+
+开启野指针错误 调试，xcode-项目-僵尸对象
+
+22.2.指针变量是局部变量main结束他就结束
+
+22.3.简化@property参数管理对象直接set方法
+@interface Person : NSObject
+{
+	Cat *_cat;
+}
+// 自动帮忙生成set方法内存管理代码 
+@property (retain) Cat *cat;
+@end
+// dealloc方法需要释放
+@implementation Person
+-(void)dealloc
+{
+	[_cat release];
+	[super dealloc];
+}
+@end
+
+22.4.@property参数
+1.控制set方法（对象）内存管理
+2.assign：直接赋值（默认方式，不做内存管理）
+3.copy：后面再说
+4.控制set方法和get方法
+@property (assign,readonly) int age;
+@property (assign,readwrite)int age;
+5.atomic :性能低（默认）
+nonatomic:性能高
+@property (nonatomic,assign,readwrite)int age;
+@property (nonatomic,retain)House *house;
+6.get和set方法改名字
+@property(nonatomic,assign,getter=getHeight,setter=setMyHeight,setter=setMyHeight:)int height;
+
+22.5.autorelease方法
+int main()
+{
+	@autoreleasepool//在内存创建自动释放池，池子销毁时候，把池子里每个对象调用release（调用一次）
+	{	// autorelease会将对象放到池子里去，计数器并没有改变
+		Person *p = [[[Person alloc] init] autorelease];
+		p.age = 20;
+	}
+	return 0;
+	
+}
+
+ios 5.0之前写法
+NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+//创建对象
+[pool release];
+
+快速创建对象
+#import "Person.h"
+@implementation Person
++(Person *)person
+{
+	Person *p = [[[Person alloc] init] autorelease];
+	return p;
+}
+@end
+
+int main()
+{
+	@autoreleasepool
+	{
+		// 自动交个池管理内存
+		Person *p = [Person person];
+		p.age = 20;
+		// 苹果api，如果方法名不是alloc new 就不用release或autorelease
+		// 如果方法名是alloc new 就必须release
+		NSString *str1 =[NSString stringWithFormat:@"123"]; // 不需要管理内存
+		NSString *str2 = [[NSString alloc] initWithFormat:@"123"] autorelease];
+	}
+}
+
+23.category语法
+主要用去可以拓展已有类的功能，一个类如果方法很多，团队合作也是不错选择
+#import <Foundation/Foundation.h>
+@interface NSString (Nubmer)
+//计算字符串中阿拉伯数字的个数
+-(int) numberCount；
+@end
+
+@implementation NSString (Number)
+-(int)numberCount
+{
+	int count = 0;
+	for(int i=0;i<self.length;i++){
+		char c = [self characterAtIndex:i];
+		if(c>='0' && c<='9')
+		{
+			count++;
+		}	
+	}
+	return count;
+}
+@end
+
+int main()
+{
+	@autoreleasepool{
+		NSString *str = @"adb 1233kk000dsdfk45333";
+		int count = [str numberCount];
+		NSLog(@"%d",count);
+	}
+	
+	return 0;
+}
+
+
+24.protocol
+协议主要是用来申明一些方法(类似java 接口)
+@protocol MyProtocol
+@required //test1必须让遵守协议的类实现（编译器有警告）
+-(void) test1;
+@optional //test2可选
+-(void) test2;
+//默认是@required
+-(void) test3;
+
+@end
+// 遵守协议，相当与拥有协议的方法
+@interface Person : NSObject <MyProtocol>
+
+@end
+@implementation Person
+-(void) test1
+{
+	
+}
+@end
+
+一个类遵守多@protocol MyProtocol<MyProtocol1>
+@end个协议
+@interface Person : NSObject <MyProtocol，MyProtocol1>
+
+@end
+
+一个协议遵守其他协议
+@protocol MyProtocol<MyProtocol1>
+@end
+
+一个协议遵守基协议
+@protocol MyProtocol<NSObject>
+@end
+
+@protocol价值是什么？
+代理设计模式
+@interface Person : NSObject
+-(void) buyTicket;
+// 拥有一个代理属性（id是万能指针、可以是agent1、agent2）
+// 只要代理遵循协议都可以充当人类的协议
+// 代理的类名随便，必须遵守TicketDelegate协议
+@property (nonatomic,retain)id<TicketDelegate> delegate;
+@end
+// 定义一个协议
+@protocol TicketDelegate<NSObject>
+-(double) ticketPrice;
+-(int) leftTicketsNumber;
+@end
+
+@interface Aget : NSObject <TicketDelegate>
+
+@end
+
+25.block数据类型:跟函数指针有点像
+block动态把一段代码保存起来，方便以后再次调用
+int main()
+{
+	// 左边的void：block没有返回值
+	// 最右边():没有参数
+	// 中间的(^)block的标志，不能少
+	void (^myblock)() = ^{
+		int a = 12;
+		int b= 11;
+		NSLog(@"a=%d,b=%d",a,b);
+	};
+	myblock();
+	
+	int (^sumBlock)(int,int);
+	sumBlock = ^(int v1,int v2){
+		return v1+v2;
+	};	
+	int sum = sumBlock(v1,v2);
+}
+1.定义block变量：
+返回值类型(^block变量名)(参数类型1，参数2...);
+2.给block变量赋值
+block变量名 = ^(参数类型1，参数类型2,...)
+{
+}
+3.应用场景，做动画
+设置动画属性
+开始执行动画
+动画执行完毕
+
+4.block内部不能修改默认的局部变量
+int main()
+{
+	int a = 10;
+	__block int b = 10;
+	//定义一个block变量
+	void (^block)()=^{ //block实际上是一个结构体
+		// 不能修改a
+		// a = 11;
+		b = 11;
+	};
+	
+	block();
+	block();
+}
+
+5.block定义新数据类型名称
+typedef int (^MyBlock)(int,int);
+int main()
+{
+	MyBlock minus = ^(int a,int b)
+	{
+		return a-b;
+	}
+	
+	int d = minus(10,5);
+
+	MyBlock sum = ^(int a,int b)
+	{
+		return a+b;
+	}
+	
+	int e = sum(10,5);
+}
+
+
+26.id类型和@class
+int main()
+{
+	@autoreleasepool
+	{
+		id abc = @"123";
+		id p = [[[Person alloc] init] autorelease];
+		// 警告，但运行不报错		
+		[p test]
+		// oc是弱语法，不报错，只有警告，动态绑定		
+		NSString *p = [[[Person alloc] init] autorelease];
+		
+	}
+}
+
+@class Dag; //简单申明类型
+@interface Person : NSObject
+-(void) test:
+@property(nonatomic,retain)Dog *dog;
+@end
+
+#import "Person.h"
+#import "Dog.h" // 实现时再包含
+@implementation Person
+-(void)test
+{
+	[_dog bark];
+}
+-(void) dealloc
+{
+	[_dog release];
+	[super dealloc];
+}
+@end
+
+@class与import有什么区别？
+@class做一个简单的申明，并不包含类的方法声明，成员变量申明
+#import纯粹是把整个类的所有申明都拷贝一份
+如果两个类相互包含，头文件声明必须是@class
+
+***如果两个类相互包含（关联关系）***内存管理怎么解决
+解决办法让一端用retain，另一端用assign
+
+27.static和extern关键字
+27.1.对函数影响：
+外部函数和内部函数
+外部函数：
+sum.c
+extern int sum(int a,int b)
+{
+	return a+b;
+}
+
+main.c
+#include <stdio.h>
+extern int sum(int,int);
+int main()
+{
+	int c = sum(10,11);
+	return 0;
+}
+默认定义所有函数都是外部函数extern函数可以被省略
+**extern定义一个外部函数和声明一个外部函数
+外部函数的局限性，在整个程序中不允许同名的外部函数
+
+定义一个内部函数
+test.c
+static void test()
+{
+	//
+}
+
+main.c
+#include <stdio.h>
+void test();
+int main()
+{
+	test();
+	return 0;
+}
+void test()
+{
+	printf("调用了main test函数");
+}
+
+**static定义内部函数、申明一个内部函数
+
+27.2.对变量的影响：
+外部变量 内部变量
+#include<stdio.h>
+extern int age; //完整地申明一个外部变量
+int main()
+{
+	printf("age=%d",age);
+}
+// 定义一个外部变量
+int age = 10;
+
+extern：对变量就是声明一个外部变量，不能定义外部变量
+
+在多个文件里面有同名的变量，在c里面是同一个变量,可以同名
+
+内部变量
+// 定义内部变量
+static int age;
+面试题目：
+extern变量：申明外部变量；static变量：定义内部变量
+extern函数：定义一个外部函数和声明一个外部函数；static定义内部函数、申明一个内部函数
+
+27.3.static对局部变量
+void test()
+{	
+	/*
+	static修饰的局部变量的生命周期
+	1，第一次使用这个变量的时候才会创建
+	2，程序退出的时候，才会销毁
+	3，使用频率很高，要求不改变值，程序效率高要用
+	   static局部变量
+	*/
+	static int count = 0;
+}
+
+27.4.利用static定义所有对象共享的变量（包括类方法和对象方法）
+
+28.signed和unsigned
+
+int main()
+{
+	@autoreleasepool{
+		// 4个字节
+		int b = -10;
+		// 8
+		long int c = 10;
+		short int d = 10;
+		// 有符号（+ - 0)
+		signed int e = 10;
+		// 无符号（+ 0，没有负数)
+		unsigned int f =10;
+		
+		NSString *str =@"liutz";
+		
+		NSUInteger len = [str length];
+		// %d %i输出int类型的数据（正数、负数、0）
+		// %zd %zi输出unsigned类型的数据		
+		NSLog(@"len=%zd",len);
+		// 无符号和有符号区别，在于内存最高位有没有符号位
+		// int类型32位表示的范围：无（0-2的32次方-1）、有（0-2的31次方-1）
+						
+	
+	}
+}
+
+29.位运算符
+与&作用可以取出1110第3位是什么（从左到右）1110&0010=0010(第三位是1)
+或|
+异或^
+左移9<<1
+
+30.集合类：fonudation结构体
+foundation NSString
+Foundation utableString
+Foundation 数组
+Foundation NSSet
+Foundation NSDictirnary
+
+31.NSNumber
+把基本数据类型变化NSNumber
+int main()
+{	
+	NSNumber *num = [NSNumber numberWithInt:20];
+	NSArray *array = [NSArray arrayWithObjects:num,@"Mike",nil];
+	NSNumber *num1 = [array objectAtIndex:0];
+	// 简单写法，编译器自动处理效果跟第一句一样
+	NSNumber *num2 = @10l;
+	int a = 10;
+	NSNumber *num3 = @(a); // 是变量就这样包装以下 
+	
+	NSArray *array = [NSArray arrayWithObjects:@20,@"mkie",@7.8f,nil];
+	// 数组简化写法
+	NSArray *array = @[@20,@"mike",@7.8f];
+	[array objectAtIndex:1];
+	// 简化访问元素
+	NSString *s = array[1];
+	NSNumber *num4 = array[0];
+	NSLog(@"%@",num4);
+	
+//	// 字典初始化
+	NSDictionary *dict = [NSDictionary dictionaryWithObjectAndKeys:@"Mike",@"name",@"北京",@"address",nil];
+	// 简单写法,该数组不可变化
+	NSDictionary *dict = @{@"name":@"Mike",@"address":@"北京"};
+	//遍历[dict objectForKey:@]
+	NSString *name = dict[@"name"];
+}
+
+
+32.NSNull：是空对象，在集合里面可以先占一个垦
+@[[NSNull null],@"Mike",[NSNull null],@"JACK"]]；
+// 单态模式
+[NSNull null];
+
+33.把结构体封装成对象
+数组：@[@10,@20];
+CGPoint p = CGPoinMake(20,20);
+// 将结构体p包装成一个NSValue对象
+NSValue *value = [NSValue valueWithBytes:&p objCType:@encode(CGPonit)];
+NSArray *array = @[value];
+NSValue * value2 = array[0];
+
+CGPoin p2;
+[value2 getValue:&p2];
+NSLog(@"p2=%@",NSStringFromPoint(p2));
+
+// 简单写法
+NSValue*value= [NSValue valueWithPoin:CGPointMake(10,43)];
+[value pointValue];
+
+struct Student{
+	int age;
+};
+struct Student stu = {20};
+[NSValue valueWithBytes:&stu objCType:@encode(struct Student)];
+// 结构体包装成对象
+typedef struct{
+	int age;
+}Student;
+Student stu = {20};
+[NSValue valueWithBytes:&stu objCType:@encode(Student)];
+
+**NSNumber是NSValue的子类**
+
+34.NSDate开发用到时间
+// 返回当前时间
+NSDate *date = [NSDate date];
+NSLog(@"date=%@",date);
+
+距离1970的秒：表示:[date timeIntervalSince1970];
+
+时间格式化
+// 2010-09-10 09:20:30
+// 2010/09/10 09:20:30
+NSDateFormatter * format = [[[NSDateFomatter alloc] init] autorelease];
+format.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+NSDate *date = [NSDate date];
+NSString *s = [format stringFromDate:date];
+
+// 把字符串转换成对象
+NSDateFormatter * format = [[[NSDateFormatter alloc] init] autorelease];
+format.dateFormat @"yyyy-MM-dd HH:mm:ss";
+NSString *timeStr = @"2011-09-27 12:50:45";
+NSDate *date = [formate dateFromString timeStr];
+
+35.NSObject常用的方法
+// 调用一个函数，函数只传一个selector参数
+void test(SEL selector)
+{
+	Person *p = [[[Person alloc] init] autorelease];
+	[p performSelector:selector];
+}
+int main()
+{
+	Person *p = [[[Person alloc] init] autorelease];
+	// 返回p对象的类对象
+	Class c = [p class];
+	Class c = [Person class];
+	// 1.p对象是不是Person类型（包含父类型）
+	[p isKindOfClass:c];
+	[p isKIndOfClass:[NSObject class]];
+	// 2.判断对象p是否为Person类型，但不包括该类的父类型
+	[p isMemberOfClass:[Person class]];
+	// 3.判断对象p是否是遵守NSObject协议	
+	[p conformsToProtocol:@protocol(NSObject)];
+	// 4.判断对象p有无实现xx方法，防止崩溃可能
+	if([p respondsToSelector:@selector(study)] == YES)
+	{
+		[p study];
+		调用方法形式还有一种间接方法
+		[p performSelector:@selector(study)]; // 应用场景件test函数
+	}else{
+		// 没有实现study方法
+	}
+
+	// 5.定时调用一个方法
+	[p test:@"123"];//简单调用test方法带有参数
+	// 3秒钟以后调用test方法，该方法传一个参数，能传多个参数吗？
+	[p performSelector:@selector(test:) withObject:(@"mike") afterDelay:3];
+}
+
+36.arc是编译器特性，这些特性是编译器帮忙加相关代码
+36.1.模型设计
+#import <Foundation/Foundation.h>
+// 枚举命名
+typedef enum{
+	kSexMan, // 男
+	kSexWoman, // 女
+	kSexUnkown / 不详
+} Sex;
+// 姓名 性别 身高 体重
+@interface Person : NSObject
+@property (nonatomic,retain) NSString *name;
+@property (nonatomic,assign) Sex sex;
+@property (nonatomic,assign) double height;
+@property (nonatomic,assign) double weight;
+@end
+
+#import "Person.h"
+@implementation Person
+-(void)dealoc
+{
+	[_name release];
+	[super dealloc];
+}
+@end
+#import <Foundation/Foundation.h>
+@class Person;
+@interface Book : NSObject
+@property (nonatomic,retain)NString *NAME;
+@property (nonatomic,assign)double price;
+@property (nonatomic,retain)NSString *publicsher;
+@property (nonaomic,retain)Person *person; 
+@end
+
+#import "Book.h"
+#import "Person.h"
+@implementation Book
+-(void)dealloc
+{
+	[_name release];
+	[_publicsher release];
+	[_author release];
+	[super dealloc];
+}
+
+
+37.ARC上面的模型内有很多属性都需要手动写代码
+xcode5.1编译器帮我加上手动管理内存
+ARC原理：
+强指针:_store 
+弱指针：_week
+只要不是强指针，该指针的指向的对象无法使用
+1.不能调用release retain autorelease retainCount
+2.可以重写dealloc，但是不能调用[super dealloc]
+3.@property:想长期拥有某个对象，应该用strong,其他对象weak
+4.其他基本数据类型依然用assign
+
+38.将以前不是arc的项目转换为arc怎么办?
+选择Edit-Refactor-Convert to Objective-C ARC
+怎么告诉系统我有个别文件不需要arc？
+点击项目-看到TARGETS-CompileSource
+双击.m文件写-fno-objc-arc
+clean项目
+
+39.arc注意点：
+2个类相互关联：Person与Cad，将一端设置（Card）弱指针就可以解决
+
+40.第一个ios程序 

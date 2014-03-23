@@ -1,0 +1,988 @@
+C语言笔记
+内容：小知识点、数组相关操作、指针相关操作、结构体知识
+1.小知识点
+1.1头文件一般是声明函数的没有定义
+stdio.h 在什么位置吗？
+# defaults write com.apple.finder AppleShowAllFiles YES
+在usr/include/目录下
+编译器：前端和后端
+前端：负责执行预处理指令，比如：#include
+后端：翻译
+
+1.2.函数声明
+如果main函数调用一个函数，先要确定该函数存在的。
+就先进行函数申明，函数定义可以放到后面。
+声明的函数形参的名字可以不要如：long sum(int,int);
+编译检查语法，如果函数已经申明了，但不能检查函数有没有定义
+链接检查函数的定义，会将c语言的函数（函数定义）跟我们.o文件合并在一起。
+
+如果自定义函数名字申明跟系统同名，再定义函数完全覆盖系统函数功能。
+// 定义一个main函数
+// 定义：写清楚函数的具体代码
+int main(){
+ 	return 0;
+}
+
+1.3.编译源码命令
+# touch 01-函数复习.c // 创建文件
+# open 01-函数复习.c // 打开文件
+# cc 01-函数复习.c // 编译文件
+# cc -c 01-函数复习.c // 编译文件
+
+1.4.编写一个函数
+/*小写转换成大写*/
+char upper(char source)
+{
+ if(source>='a' && source<='z')
+ {
+ return source -32;
+ }
+ return source;
+}
+
+1.5.函数不能嵌套定义
+control+x 可以退出死循环
+函数不能重复定义，但可以重复申明
+print语句中%d和%i作用一样
+/* 不能交换外面实参的值，因为基本数据类型作为函数参数时，函数调用只是值传递 */
+swap(int v1,int v2)
+{
+ 	int temp = v1;
+ 	v1 = v2;
+ 	v2 = temp;
+}
+
+# touch 02-main和printf函数.c
+int main()
+{
+ 	return 0;
+}
+
+编译只会检查语法问题，源代码有没有定义main函数只有在链接时才会检测有没有定义main函数
+main函数返回给操作系统，如果是0正常，否则表示异常处理
+
+1.6.cc是编译和链接
+链接：会将c语言自带的函数库跟我们的.o目标文件合在一起
+
+1.7.变量在内存的情况
+字节和地址
+每个字节都有地址，变量有地址，不然怎么改变变量的值呢？
+在内存中拿32位来存储数字10（十六进制）
+0b0000 0000 0000 0000 0000 0000 0000 1010
+int a = 10; 
+// 0b100 0001
+char c = 'A' // 65
+地址一般用16进制表示
+内存寻址从大到小开始，字节地址 字节内容
+0xffc1    
+0xffc2
+0xffc3
+0xffc4
+0xffc5   0100 0001  变量c
+0xffc6   0000 1010  变量a
+0xffc7   0000 0000
+0xffc8   0000 0000
+0xffc9   0000 0000
+先定义的变量，内存地址值越大，计算机寻址是从大到小
+&a表示取得变量a的地址
+printf("a的地址是0x%x",&a);
+
+1.8.内存补齐算法：内存如果分配1个字节，自动补齐3个字节（该字节不分配）
+
+1.9.补充一个算法(不要求),输出整数n的所有二进制位
+void putBinary(int n)
+{
+ 	int bits = sizeof(n)*8;
+ 	while(bits->0){
+ 		printf("%d",n>>bits&1);
+ 		if(bits%4==0)printf(" "); 
+ 	}
+ 	printf("\n");
+}
+
+1.10.如果想输出地址，应该用格式符%p
+printf("a的地址是%p",&a);
+
+1.11.小数怎么存储？
+12.9f 
+129e-1
+129  2个字节存储
+-1 用2个字节存储
+负数怎么存储？补码形式存储
+
+1.12.变量补充
+交互a和b的值（int类型）
+int a = 5;
+int b = 10;
+b = a+b;
+a = b-a;
+b = b-a;
+或采用临时变量c
+int c = a;
+a = b;
+b = c;
+
+在函数里面写代码段
+void test(){
+{	
+	// a的作用域在代码段有效
+	int a = 10; 
+}
+// a 没有被定义，这样写是错误的
+int b = a; 
+
+1.13.const关键字
+const是一个C语言的关键字，它限定一个变量不允许被改变。
+使用const在一定程度上可以提高程序的安全性和可靠性。
+
+1.14.进制
+十进制：0~9 
+二进制：0~1 0B开头或0b
+进制相互转化：
+二进制-十进制
+int a = 0b1101
+printf("a:%d",a);
+十进制-八进制 能有c实现吗
+printf("a:%o\n",a);
+printf("a:%x\n",a);
+八进制0~7 0开头0123表示8进制数
+十六进制0~9-a b c d e f 0x开头如：0x123a
+n个二进制，所能表示最大范围：2^n-1
+8e5：表示8*10^5
+
+1.15.标示符
+程序员自定义的符号和名称
+命名规则，区分大小写，由26字母大小写、阿拉伯数字和下划线，不能以数字开头
+驼峰标识按规来，如paly_mp3 palyMp3等
+
+1.16.注释
+用来解释函数用途或变量的作用等,主要便于后期代码维护方便人阅读
+单行注释：
+// 这是主函数，程序第一入口
+int mian(){
+ 	return 0;
+}
+多行注释：
+/*
+记录x坐
+标位置
+*/
+int x = 10;
+注释不能嵌套
+
+1.17.数据
+静态数据和动态数据
+静态数据有硬盘下载的图片、视频和文档等
+动态数据如：QQ聊天记录跟好友聊天就产生新数据，那么这个数据可以称为动态数据
+静态数据与动态数据相互转化
+
+1.18.C语言对动态数据进行归类：数据类型
+基本数据类型：
+int 整型： 10 234 0 -122
+char 字符型：'A' 'a' '4'
+字符串："你好啊c语言"
+浮点型(小数)：1.3 0.0 0.789 .97
+float 单精度浮点型 1.3f
+double 双精度浮点型 1.3
+空类型
+指针类型
+构造类型（数组、结构体、共用体，枚举）
+
+1.19.常量和变量
+常量：则表示一些固定的数据，也就是不能改变的数据（个人的身份证性别等都是常量）
+整型常量、字符常量、浮点型常量
+变量：愤怒小鸟打死一个小猪分数是变的，我们用变量来存储这个分数,
+分数用整型数据类型就可以了，如:int score = 1;打死一个小猪时加1分如下：score+=1; 
+也可以为 score = score+1; 
+int main()
+{
+ 	int score = 0;
+ 	// 打死一个小猪加一分
+ 	// 下面的语句赋值语句将等号后面的值给左边变量
+ 	score = score + 1;
+ 
+}
+每个数据类型在内存占有存储空间，int score在内存分配4个字节给score 4*8=32位
+数据大小单位有：b kb mb gb tb
+1B = 8bit
+1KB = 1024B
+1MB = 1024KB
+1GB = 1024MB
+1TB = 1024GB
+
+不同的数据类型占用空间是不一样的
+int 4个字节
+char 1个字节
+
+1.20.UNIX指令
+打开mac终端，unix文件从根路径"/"开始,windows有多盘如：c:\ d:\等
+在mac下个人文件夹在/Users/zeus,zeus是当前登录账号用户名
+
+$ pwd 回车显示当前目录
+$ mkdir abc 在当前目录创建abc目录
+$ ls -l 显示当前目录下所有文件
+$ cd abc 按Tab键 进入abc目录
+$ cd .. 返回到上级目录
+$ cd / 回到根路径
+$ who 查看当前用户
+$ cd ~/Desktop
+$ clear 清除屏幕
+
+1.21.第一个C语言程序输出结果：
+-------------------
+*
+**
+***
+****
+-------------------
+Review.c
+$ cd ~/
+$ mkdir 20131110
+$ vi Review.c 编写.c源文件
+
+#include <stdio.h>
+int main()
+{ 
+ printf("*\n**\n***\n****\n");
+ return 0;
+}
+$ cc -c Review.c 编译.c源文件
+$ cc Review.o 链接目标.o文件
+如果源代码文件名为：Re view.c 怎么编译呢？
+$ cc -c Re\ view.c 注释：Re按tab键补全，执行完在当前目录下生成.o文件
+
+把上面输出写到一个函数中，主函数调用它
+#include <stdio.h>
+int testprintf()
+{
+ 	printf("*\n**\n***\n****\n");
+}
+int main()
+{ 
+ 	testprintf();
+ 	return 0;
+}
+$ cc Review.c 编译和链接
+$ ./a.out 运行程序
+
+注意：如果把testprintf函数放到main函数后面，在c99标准编译出错！
+总结：编译只会检测语法，并不会检测有没有主函数或其他函数
+链接，链接的时候会严格检测有没有函数的定义。
+
+1.22.C语言关键字
+C语言提供32个关键字，关键字全小写，在xcode编辑器有颜色
+
+1.23.局部全局变量的作用域和生命周期
+局部变量：在函数内部定义的变量；
+作用域：从定义变量的那行开始，一直到所在函数结束，不同函数中的同名变量，互不影响；
+生命周期：在执行变量所在的代码块时，系统才会分配存储空间给局部变量，在变量所在的代码块执行完毕时，局部变量才会销毁。
+
+全局变量：在函数外定义的变量；
+作用域：从定义变量的那一行开始，一直到文件结束；
+生命周期：在程序运行的时候就会分配存储空间(默认是0),在程序结束的时候才会销毁,可以被很多函数共享  
+
+#include <stdio.h>
+void test();
+// 全局变量可以定义多次，但是同一个变量，局部变量不能重复定义
+int count;
+int count;
+int count;
+int main()
+{
+	count = 20;
+ 	test();
+}
+void test(){
+ 	printf("count=%d\n",count);
+}
+----------------------------------------------------------
+----------------------------------------------------------
+2.数组相关操作
+2.1.定义数组注意
+//数组元素个数只能是常量值
+char names[5] = { [3] = 'l','j'};
+初始化数组：以上从下标3开始，'j'下标是5
+2.2.数组元素总数
+int length = sizeof(names)/sizeof(int);
+2.3.可以访问数组以外的下标
+
+2.4.数组定义是否正确吗？正确请说出占几个字节？
+1.char a['A'-35];
+2. int v = 5; int a[v]={1};
+第一个正确，30个字节，数组定义时，元数的个数一定是常量或常量表达式不能是变量。
+
+2.4.下面代码能改变数组的值吗？
+1.基本数据类型作为函数形参时，只是值传递，修改函数内部的形参，并不会影响外面的实参。
+2.当数组作为函数形参时，如果传递是数组名（代表是数组的地址），函数内可以改变外面的数组。
+
+2.5.下面代码说出二个 sizeof(array)值是多少？
+change(int []);
+main()
+{
+ 	int ages[4] = {12,3,5,5};
+ 	sizeof(ages); // 16个字节
+}
+change(int ages[]){
+ 	// 在函数内部计算形参数组所占字节数时，永远是8（64bit)
+ 	// 因为系统会讲形参数组转为指针类型，指针类型永远只占8个字节 
+ 	sizeof(ages);
+}
+----------------------------------------------------------
+----------------------------------------------------------
+3.指针相关操作
+3.1.空指针
+int a =10;
+int *p=&a;
+p=0;
+p=NULL;
+
+3.2.函数返回指针类型
+char * sayHello()
+{
+ 	return "haha";
+}
+
+3.3.指向函数的指针：只要有地址的量，都可以用指针指向
+void test()
+{
+ 	printf("haha");
+}
+main()
+{
+	// 定义一个指向函数的指针
+ 	void (*p)();
+	// 函数名就是函数地址	
+	p =test;
+	// 调用函数,也可以p();
+ 	(*p)();
+	// 一般这样写 
+ 	p(); 
+}
+
+应用场景：
+//求和
+int sum(int v1,int v2)
+{
+ 	return v1+v2;
+}
+//相减
+int minus(int v1,int v2)
+{
+ 	return v1-v2;
+}
+// 乘法
+int multi(int v1,int v2)
+{
+ 	return v1*v2;
+}
+// 参数指向函数指针，类似策略设计模式
+int count(int a,int b,int (*p)(int,int))
+{
+ 	return p(a,b); 
+}
+
+int main()
+{ 
+ 	// 求和运算
+ 	int c = count(10,11,sum);
+}
+注：设计函数如果内部变量是依赖外面各种算法来实现的，可以用指向函数的指针来做。
+面试题：int const *pi 和 int *const pi 这两个的区别是?
+答案：前边的是*pi不能改，后边的是pi不能改
+#include <stdio.h>
+int main()
+{
+        int a = 10;
+        int const *p1;
+        p1=&a;
+        // *p1 = 100; 编译报错
+        printf("*p1=%d\n",*p1); // *p1为10
+
+        int b = 5;
+        int c = 6;
+        int *const p2=&b;
+        // p2 = &c;指针变量p2不能再赋值
+        printf("*p2=%d\n",*p2); // *p2为5
+
+
+}
+----------------------------------------------------------
+----------------------------------------------------------
+4.结构体知识
+4.1.结构体基本操作 
+int mian()
+{
+ 	// 1.定义结构体(不分配空间，为系统增加新的类型)
+	struct Person
+	{
+		// 这个四个东西成为结构体成员或属性
+	 	char *name;
+	 	int age;
+	 	char *sex;
+		float height;
+	};
+
+	// 2.定义结构体变量（才分配空间）
+	struct Person p = {"liutz",19,"男",1.66f};
+	struct Person p1 = {"wuhc",18,"女",1.60f};
+ 
+	// 补充小知识点
+	struct Person p2;
+	p2.name="liutz";
+	p2.age=19;
+	p2.sex="男";
+	p2.height="1.65f";
+	// 错误写法，结构体定义紧接着就初始化，不能单独一行做初始化
+	// 比如：int a[5] = {1,3,4,5,6}; 后面写法是错误的如：int a[5];a={1,3,4,5,6}结构体也是一样。
+	p2={"",18,"男",165f};
+ 
+	// 另外一种初始化如：
+	struct Person p3 = {.name="liutz",.age=19,.sex="男",.height=1.65f}; 
+ 
+	// 3.遍历结构体元素
+	printf("name=%s\n",p.name);
+	printf("name=%i\n",p.age);
+	printf("name=%s\n",p.sex);
+	printf("name=%f\n",p.height);
+
+
+	// 结构体注意点
+	用结构体表示日期,定义结构体内成员类型不是自己结构体自身类型
+	struct Date{
+		int year;
+		int month;
+		int day;
+		//定义结构体变量是错误的，因为定义结构体成员不能是自身结构体类型
+		struct Date dd;
+	};
+
+
+	struct Student
+	{
+		char *name;
+		struct Date birthday;
+	}
+	// 定义结构体及初始化
+	struct Student st1={"liutz",{1985,9,10}};
+	// 也可以向下面那样初始化 
+	st1.name="liutz";
+	st1.birthday.year=1985;
+	// 也可以按上面那样进行取值操作
+}
+4.2.结构体复制操作：将结构体变量p所有成员的值赋值给了p1的成员
+void test()
+{
+	struct Point
+	{
+		double x;
+		double y;
+	};
+
+	struct Point p = {10.6,20.7};
+	struct Point p1= p;
+	p1.x=10; // p1的x值已经是10，而p的x值还是10.6
+}
+4.3.结构体变量定义：三种方式
+第一种：
+struct View
+{
+	double width;
+	double height;
+};
+struct View view;
+第二种：
+struct View
+{
+	double width;
+	double height;
+} view;
+第三种：定义结构体变量，省了结构体名称，这种方式没有重用性
+struct
+{
+	double width;
+	double height;
+} view;
+4.4.结构体作用域
+结构体类型定义在函数外，作用域相对于全局变量
+在函数定义的结构体类型，作用域在函数内部从定义开始。
+结构体数组操作：
+int main()
+{
+	struct Record
+	{
+		int no;
+		char *name;
+ 		int score;
+	}
+ 	//定义了结构体数组变量
+ 	struct Record records[4]={
+ 		{1,"jack",10},
+ 		{2,"jim",9},
+ 		{3,"rose",5},
+ 		{4,"zeus",3},
+ 	};
+
+ 	// 访问下标为1的结构体的score属性
+ 	records[1].score;
+ 
+	//结构体元素整体替换
+ 	struct Record new = {5,"hah",4};
+ 	records[1]=new;
+}
+4.5.结构体与函数及指针操作
+struct Date
+{
+	int year;
+ 	int month;
+ 	int day;
+}
+// 函数参数为结构体类型
+void test(struct Date date)
+{
+ 	date.year = 2000;
+}
+// 结构体指针作为函数参数
+void change(stuct Date *p){
+	p->year = 1014;
+ 	p->month = 4;
+ 	p->day = 2;
+}
+int main()
+{ 
+ 	struct Date myDate = {2011,9,11};
+ 	// test函数无法修改上面myDate属性
+ 	test(mydate);
+ 	if(myDate.year!=2000){
+ 		// 结构体作为函数参数时，所有成员的拷贝（值传递）
+ 	};
+
+ 	// 指向结构体类型的指针
+ 	struct Date *p;
+ 	p = &myDate;
+ 
+ 	(*p).year = 2008;
+ 	// 给指针变量p所指向的结构体的year成员赋值
+ 	p->year =2008;
+	
+	change(p);
+ 	
+	// 指向结构体类型的指针(另一种写法)
+ 	struct Point
+ 	{
+ 		double x;
+ 		double y;
+ 	} *p1;
+}
+4.6.结构体占用内存情况
+默认情况下结构体所占的存储空间是所有定义成员总和，但是算大小时sizeof计算结构体
+所占用存储空间返回的值必须是最大成员的倍数如下：
+struct Student{
+	char c;
+	int i;
+} s;
+// 2*4=8，表示最大成员占位数乘以倍数2
+int length = sizeof(s);
+----------------------------------------------------------
+----------------------------------------------------------
+5.枚举类型操作
+5.1.枚举类型基本知识
+int main()
+{
+	// 定义枚举类型Season
+	// 有4个常量值默认都是整型常量0,1,2,3
+	enum Season{spring,summer,autumn,winter};
+	// 常量依次递增
+	enum Season1{spring=1,summer,autumn,winter};
+	// 利用定义好的枚举类型定义一个枚举变量
+	enum Season s = summer;
+	
+	printf("%d\n",winter);
+	
+	// 定义枚举类型的同时定义枚举变量
+	enum Sex{man,woman,unkown} s;
+	// s2表示的性别是不详	
+	enum Sex s2 = unknow;
+
+}
+5.2.枚举类型变量通常在main函数外定义（共用及方便交流）
+
+6.数据类型总结
+6.1.基本数据类型 
+	int 4个字节
+	float 4个字节
+	double 8个字节
+	char 1个字节
+	long int 8个字节
+	long 8个字节
+	short int 2个字节
+	short 2个字节
+6.2.构造类型
+	数组：所有元素都是同一种类型、每个元素都是顺序，下标从0开始
+	结构体：可以由不同类型的数据组成；利用.运算符访问成员
+	掌握结构体类型的定义、结构体变量的定义、成员访问、看懂指向结构体的指针
+6.3.指针类型：如何间接修改某个变量的值
+	定义指针类型变量
+	利用指针间接修改其他变量的值
+	看懂返回指针的函数、看懂指向函数的指针
+	利用指针变量来存储字符串：char *name="zeus";
+6.4.枚举类型
+当一个变量只有固定的几个取值时，就可以用枚举类型来定义变量
+掌握定义枚举类型、定义枚举变量
+----------------------------------------------------------
+----------------------------------------------------------
+7.预处理指令知识
+预处理指令：在翻译之前执行的指令称为预处理指令
+三种预处理指令：宏定义、条件编译、文件包含（#include）
+特点：都是以#开头、指令后面不用加分号、作用域、书写位置随意
+7.1.不带参数宏操作
+// 宏定义:#define 宏名 值
+// 在翻译之前，将代码里面的所有count替换（宏替换）
+// 宏名最好用大写，跟变量名区分来
+// 作用域：从书写指令的那一行开始，一直到文件结尾
+#define COUNT 4
+int main()
+{
+	int ages[count] = {1,2,3,4};
+	// 如果是字符串就不会宏替换
+	char *name = "COUNT";
+}
+7.2.带参数宏操作
+// 涉及到简单运算时，可以采用带参数宏替换
+// 很有经验的写法，参数都必须用()包住
+#define PING_FANG(x) （（x）*（x））
+int main()
+{
+	int a = 4;
+	int r = PING_FANG(a); // a*a
+	return 0;
+}
+
+#define PI 3.14
+int main()
+{
+	2*PI*10;
+	// 取消定义PI这个宏，从下行开始PI的宏就失效
+	undef PI
+}
+
+7.3.条件处理指令
+在满足一定条件参与编译
+#define COUNT 10
+int main()
+{
+	int a = 10;
+	// 在运行时进行运行
+	if(a==10){
+		printf("a==10");	
+	}else if(a ==0){
+		printf("a==0");
+	}else{
+		printf("a是其他值");	
+	}
+
+	// 在翻译之前进行条件判断，为真就参与编译
+	// 注意#endif一定要有，不然#else后面return 0;}都没有，肯定出错
+	#if(COUNT ==10)
+		printf("COUNT==10");
+	#elif(COUNT ==0)
+		printf("COUNT==0");
+	#else
+		printf("COUNT是其他值");
+	#endif
+
+	// 如果定义了COUNT宏，就编译后面代码
+	#ifdef COUNT
+		printf("定义了宏");
+	#endif
+
+	// 如果没定义COUNT宏，就将code编译进去
+	#ifndef COUNT
+		printf("定义了宏");
+	#endif
+
+	// 其他用法
+	#if defined(COUNT)
+		printf("该语句参与编译...");
+	#endif
+	
+	// 如果前面没有定义COUNT这个宏，就将code编译进去
+	#if !defined(COUNT)
+		printf("该语句参与编译1...");
+	#endif
+
+	return 0;
+}
+
+7.4.头文件包含预处理指令
+7.4.1在同一个目录下：
+sum.h内容：
+// #include "sum.h" 自己包含自己
+// #include "minus.h" 不能交叉包含
+void sum(int,int);
+
+minus.h内容：
+// #include "sum.h" 不能交叉包含为什么？
+void minus(int,int);
+
+main.c内容：
+#include "sum.h"
+#include "minus.h"
+#include <stdio.h>
+int main()
+{
+	sum(10,10);
+	return 0;
+}
+
+7.4.2.包含预处理，解决重复包含问题
+sum.h内容：
+#ifndef _SUM_H
+#define _SUM_H
+void sum(int,int);
+#endif
+
+minus.h内容：
+#ifndef _MINUS_H
+#define _MINUS_H
+void minus(int,int);
+#endif
+
+main.c内容：
+#include "sum.h"
+#include "minus.h"
+#include <stdio.h>
+int main()
+{
+	sum(10,10);
+	minus(120,10);
+	return 0;
+}
+
+注意：在oc中，#import "sum.h",检查是否包含了，如果有就不包含
+
+8.typedef关键字操作
+8.1.简单使用
+// 给int类型起一个别名：myInt
+typedef int MyInt;
+typedef double CGFloat
+int main()
+{
+	int a = 10;
+	// 其实就定义int类型
+	MyInt b = 10; 
+	return 0;
+}
+8.2.常见用法
+8.2.1.typedef和#define的区别
+typedef char * String;
+#define String1 char*
+int main()
+{
+	String name = "jack";
+	String1 name1 = "tom";
+}
+8.2.2.结构体类型起别名
+int main()
+{
+	struct Student
+	{
+		int age;
+		int no;
+	}
+	// 给结构体类型起别名Stu
+	typedef struct Student Stu;
+	Stu stu = {10,1};
+	printf("age:%d no = %d",stu.age,stu.no);
+	
+	// 可以这么用
+	typedef struct Student
+	{
+		int age;
+		int no;
+	}Stu;
+	
+	// 还可以这么用，太好了
+	typedef struct
+	{
+		int age;
+		int no;
+	}Stu;
+
+	// 给结构体指针起名字(Date也可以省略)
+	typedef struct Date
+	{
+		int year;
+	}* DateP;
+
+	struct Date date = {2008};
+	Datep p = &date;
+	printf("year=%d",p->year);		
+}
+
+8.2.3.指向函数指针起别名（在oc中讲解，一下内容来自网络）
+用法一：
+typedef int (*MYFUN)(int, int);
+这种用法一般用在给函数定义别名的时候
+上面的例子定义MYFUN 是一个函数指针, 函数类型是带两个int 参数, 返回一个int
+
+在分析这种形式的定义的时候可以用下面的方法:
+先去掉typedef 和别名, 剩下的就是原变量的类型.
+去掉typedef和MYFUN以后就剩:
+int (*)(int, int)
+
+用法二：
+typedef给变量类型定义一个别名.
+typedef struct{
+	int a;
+	int b;
+}MY_TYPE;
+
+这里把一个未命名结构直接取了一个叫MY_TYPE的别名, 这样如果你想定义结构的实例的时候就可以这样:
+MY_TYPE tmp;
+第二种用法：typedef 原变量类型 别名
+
+typedef补充内容：
+例如：
+　　typedef int (*PF) (const char *, const char *);
+　　这个声明引入了 PF 类型作为函数指针的同义字，该函数有两个 const char * 类型的参数以及一个 int 类型的返回值。
+简单的函数指针的用法
+//形式1：返回类型（*函数名）（参数表）
+char（*pFun)(int);
+char glFun(int a)
+{
+	return;
+}
+void main()
+{
+	pFun =glFun;
+	(*pFun)(2);
+}
+第一行定义了一个指针变量pFun.它是一个指向某种函数的指针，这种函数参数是一个int类型，返回值是char类型。
+只有第一句我们还无法使用这个指针，因为我们还未对它进行赋值。
+第二行定义了一个函数glFun().该函数正好是一个以int为参数返回char的函数。
+我们要从指针的层次上理解函数-函数的函数名实际上就是一个指针，函数名指向该函数的代码在内存中的首地址。
+
+使用typedef更直接
+typedef char(*PTRFUN)(int)
+PTRFUN pFun;
+char glFun(int a)
+{
+	return;
+}
+void main()
+{
+	pFun = glFun;
+	(*pFun)(2);
+}
+typedef的功能是定义新的类型。第一句就是定义了一种PTRFUN的类型，并定义这种类型为指向某种函数的指针，这种函数以一个int为参数并返回char类型。
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+下面是个例子：
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+在typedef的使用中，最麻烦的是指向函数的指针，如果没有下面的函数，你知道下面这个表达式的定义以及如何使用它吗？
+ 
+int (*s_calc_func(char op))(int, int);
+
+如果不知道，请看下面的程序，里面有比较详细的说明
+ 
+
+// 定义四个函数
+int add(int, int);
+int sub(int, int);
+int mul(int, int);
+int div(int, int);
+// 定义指向这类函数的指针
+typedef int (*FP_CALC)(int, int);
+
+// 我先不介绍，大家能看懂下一行的内容吗？
+int (*s_calc_func(char op))(int, int);
+
+// 下一行的内容与上一行完全相同，
+// 定义一个函数calc_func，它根据操作字符 op 返回指向相应的计算函数的指针
+FP_CALC calc_func(char op);
+
+// 根据 op 返回相应的计算结果值
+int calc(int a, int b, char op);
+
+int add(int a, int b)
+{
+    return a + b;
+}
+int sub(int a, int b)
+{
+    return a - b;
+}
+int mul(int a, int b)
+{
+    return a * b;
+}
+int div(int a, int b)
+{
+    return b? a/b : -1;
+}
+// 这个函数的用途与下一个函数作业和调用方式的完全相同，
+// 参数为op，而不是最后的两个整形
+int (*s_calc_func(char op)) (int, int)
+{
+    return calc_func(op);
+}
+
+FP_CALC calc_func(char op)
+{
+    switch (op)
+    {
+    case '+': return add;
+    case '-': return sub;
+    case '*': return mul;
+    case '/': return div;
+    default:
+        return NULL;
+    }
+    return NULL;
+}
+
+int calc(int a, int b, char op)
+{
+    　FP_CALC fp = calc_func(op); // 下面是类似的直接定义指向函数指针变量
+       // 下面这行是不用typedef，来实现指向函数的指针的例子，麻烦！
+        int (*s_fp)(int, int) = s_calc_func(op);
+        // ASSERT(fp == s_fp); // 可以断言这俩是相等的
+    　 if (fp) return fp(a, b);
+    　else return -1;
+}
+
+void test_fun()
+{
+    int a = 100, b = 20;
+    printf("calc(%d, %d, %c) = %d\n", a, b, '+', calc(a, b, '+'));
+    printf("calc(%d, %d, %c) = %d\n", a, b, '-', calc(a, b, '-'));
+    printf("calc(%d, %d, %c) = %d\n", a, b, '*', calc(a, b, '*'));
+    printf("calc(%d, %d, %c) = %d\n", a, b, '/', calc(a, b, '/'));
+}
+
+运行结果
+   calc(100, 20, +) = 120
+   calc(100, 20, -) = 80
+   calc(100, 20, *) = 2000
+   calc(100, 20, /) = 5
+
+8.2.4.枚举别名
+简单使用：
+enum Season {spring,summer,autum,winter};
+enum Season s = spring;
+
+typedef enum Season Myseason;
+Myseason s1 = spring;
+
+常见使用：
+// Season这个名称可以省略
+typedef enum Season{
+	spring,
+	summer,
+	autumn,
+	winter
+} MyS;
+MyS s = spring;
+MyS s1 = summer;
+
+
+
