@@ -1,0 +1,6 @@
+20140324
+第一界面：
+Edite + edite = textview
+button
+1.UIView和UIViewControler类介绍
+看到着和摸的着就UIView(button\textview\...)
