@@ -2,5 +2,46 @@
 第一界面：
 Edite + edite = textview
 button
-1.UIView和UIViewControler类介绍
+UIView和UIViewControler类介绍
 看到着和摸的着就UIView(button\textview\...)
+每一个uiview都要交给UIViewController去管理（只有一个）
+负责创建和销毁UIView
+处理UIView的所有事件
+
+一、基础知识
+1.storyboard文件是用来描述软件界面的
+2.连接UIViewController和控件的事件，需要用IBAction
+3.连接UIViewController和控件，需要用IBOutlet
+
+20140329
+二、IOS程序的运行函数过程
+1.执行main函数（在main.m文件中)
+2.加载MainStoryboard文件
+ *创建ViewController子类对象
+ *创建ViewController内部UIView
+ *当然，也会创建UIView内部的所有子控件
+ *将创建好的所有UIView对象跟ViewController做相应的关联
+
+3.将程序的第一个控制器内部的UIView显示到手机屏幕上
+细节：
+*编辑框设置键盘输入数据类型、
+*右边带有clear图标、编辑框设置密码类型
+*编辑框调出键盘如何隐藏，[self.qqField resignFirstResponder]
+ 用控制器父类view，[self.view endEditing:YES]; 
+*点击软键盘的done如何隐藏键盘?需要用到代理模式，代理编辑框实现UITextFieldDelegate协议，
+-(BOOL)textFieldShouldReturn:(UITextField *)textfField;
+
+20140331
+UIView常见属性
+1.修改UIView的尺寸（宽高）:frame\bounds
+2.修改UIView的位置:frame(左上角的位置)、center(中点的位置) 
+3.ViewController里面有一个方法，当控制器内部所有的view被加载完毕时回调
+-(void)viewDidLoad
+{
+	[super viewDidLoad];
+}
+
+小练习：做一个被虐的按钮【上下循环移动、左右循环移动、缩放与旋转和动画特效】
+*下面的功能按钮采用storyboard布局
+*viewDidLoad添加被虐按钮（代码实现）
+*功能控制，实现特效
