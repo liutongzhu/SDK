@@ -45,3 +45,46 @@ UIView常见属性
 *下面的功能按钮采用storyboard布局
 *viewDidLoad添加被虐按钮（代码实现）
 *功能控制，实现特效
+20140401
+*被虐按钮设置
+#pragma mark 创建橙色按钮
+-(void) createOrangeBtn
+{
+	// 创建按钮
+	[[UIButton alloc] initWithFrame:(CGRect)];
+	// 设置按钮的frame(位置和尺寸)
+	btn.frame = CGRectMake(100,100,100,100);
+	// 设置背景颜色（橙色）
+	btn.backgroundColor = [UIColor orangeColor];
+	// 设置按钮文字（普通状态）
+	[btn setTitle:@"我是按钮" forState:UIControlStateNormal];
+	// 高亮状态：用户的手指按下去了
+	[btn setTitle:@"被人摸了" forState:UIControlStateHighlighted];
+	// 设置按钮文字颜色
+	[btn setTitleColor:[UIColor redColor] forState:UIControlStateHighlighted];
+	[self.view addSubview:btn];
+	btn.frame = CGRectMake(100,100,100,100);
+}
+
+*控制被虐按钮的按钮（向左向右 向下向上）抽取公共部分
+-(void) addDirectionBtnWithNormal:(NSString *)normal highlighted:(NSString *)highlighted position:(CGPoint)point
+{
+	// 创建按钮
+	UIButton *btn = [[UIButton alloc] init];
+	// 设置按钮的普通背景图片
+	// 根据图片名称去项目文件系统中加载图片对象
+	UIImage *normalImage = [UIImage imageNamed:normal];
+	[btn setBackgroundImage:normalImage forState:UIControlStateNormal];
+
+	// 设置按钮的高亮图片
+	UIImage *highImage = [UIImage imageNamed:highlighted];
+	[btn setBackgroundImage:highImage forState:UIControlStateHighlighted];
+
+	// 设置尺寸
+	btn.frame = (CGRect){point,normalImage.size};
+	
+	// 添加到控制view中
+	[self.view addSubview:btn];
+
+}
+
