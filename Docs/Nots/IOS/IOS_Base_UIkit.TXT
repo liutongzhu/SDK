@@ -88,3 +88,13 @@ UIView常见属性
 
 }
 
+20140403 代码参见
+20140405 图片浏览器-内容包括：UILabel UISlider UIImageView UISwitch控件使用
+1.读取plist文件
+// mainBundle可以用来访问项目中的所有资源
+NSBoundler *bundle = [NSBoundle mainBundler];
+// 获取images.plist在用户手机上的全路径
+NSString *path = [bundle pathForResource:@"imags" ofType:@"plist"];
+// 根据文件的全路径，加载资源文件
+NSArray * imageData = [NSArray arrayWithContentsOfFile:path]
+2. 
